@@ -836,6 +836,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "heck"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2540771e65fc8cb83cd6e8a237f70c319bd5c29f78ed1084ba5d50eeac86f7f9"
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1528,9 +1534,9 @@ dependencies = [
 
 [[package]]
 name = "racer"
-version = "2.2.2"
+version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64954e44fc0d1dcc64e0b9f2b155249ad62849eba25354b76ae1598d1e8f0fa0"
+checksum = "e92c370d4ede487c4d56c8104d1d425cd447db29fe4a668b0f368a46fa9a5861"
 dependencies = [
  "bitflags",
  "clap 2.33.3",
@@ -1721,7 +1727,7 @@ dependencies = [
  "difference",
  "env_logger 0.9.0",
  "futures 0.3.18",
- "heck",
+ "heck 0.4.0",
  "home",
  "itertools 0.10.1",
  "jsonrpc-core",
@@ -2104,7 +2110,7 @@ version = "0.4.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcb5ae327f9cc13b68763b5749770cb9e048a99bd9dfdfa58d0cf05d5f64afe0"
 dependencies = [
- "heck",
+ "heck 0.3.3",
  "proc-macro-error",
  "proc-macro2",
  "quote",
