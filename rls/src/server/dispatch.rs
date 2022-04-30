@@ -84,6 +84,7 @@ macro_rules! define_dispatch_request_enum {
     }
 }
 
+#[cfg(feature = "fmt")]
 define_dispatch_request_enum!(
     Completion,
     Definition,
@@ -98,6 +99,23 @@ define_dispatch_request_enum!(
     ResolveCompletion,
     Formatting,
     RangeFormatting,
+    ExecuteCommand,
+    CodeLensRequest,
+);
+
+#[cfg(not(feature = "fmt"))]
+define_dispatch_request_enum!(
+    Completion,
+    Definition,
+    References,
+    WorkspaceSymbol,
+    Symbols,
+    Hover,
+    Implementation,
+    DocumentHighlight,
+    Rename,
+    CodeAction,
+    ResolveCompletion,
     ExecuteCommand,
     CodeLensRequest,
 );

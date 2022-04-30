@@ -313,6 +313,7 @@ impl<O: Output> LsService<O> {
         // build or access to the VFS or real file system.
         // Requests must not mutate RLS state, but may ask the client to mutate
         // the client state.
+        #[cfg(feature = "fmt")]
         match_action!(
             msg.method;
             notifications:
@@ -330,6 +331,35 @@ impl<O: Output> LsService<O> {
                 requests::ExecuteCommand,
                 requests::Formatting,
                 requests::RangeFormatting,
+                requests::ResolveCompletion,
+                requests::Rename,
+                requests::CodeAction,
+                requests::DocumentHighlight,
+                requests::Implementation,
+                requests::Symbols,
+                requests::Hover,
+                requests::WorkspaceSymbol,
+                requests::Definition,
+                requests::References,
+                requests::Completion,
+                requests::CodeLensRequest;
+        );
+        #[cfg(not(feature = "fmt"))]
+        match_action!(
+            msg.method;
+            notifications:
+                notifications::Initialized,
+                notifications::DidOpenTextDocument,
+                notifications::DidChangeTextDocument,
+                notifications::DidSaveTextDocument,
+                notifications::DidChangeConfiguration,
+                notifications::DidChangeWatchedFiles,
+                notifications::Cancel;
+            blocking_requests:
+                ShutdownRequest,
+                InitializeRequest;
+            requests:
+                requests::ExecuteCommand,
                 requests::ResolveCompletion,
                 requests::Rename,
                 requests::CodeAction,

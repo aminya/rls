@@ -2,6 +2,7 @@
 //! etc.
 
 use crate::config::Config;
+#[cfg(feature = "fmt")]
 use crate::config::FmtConfig;
 use crate::Span;
 use log::{debug, error, info, trace};
@@ -12,6 +13,7 @@ use serde_json::{self, json};
 use url::Url;
 use walkdir::WalkDir;
 
+#[cfg(feature = "fmt")]
 use crate::actions::format::Rustfmt;
 use crate::actions::post_build::{AnalysisQueue, BuildResults, PostBuildHandler};
 use crate::actions::progress::{BuildDiagnosticsNotifier, BuildProgressNotifier};
@@ -49,6 +51,7 @@ macro_rules! parse_file_path {
 }
 
 pub mod diagnostics;
+#[cfg(feature = "fmt")]
 pub mod format;
 pub mod hover;
 pub mod notifications;
@@ -263,6 +266,7 @@ impl InitActionContext {
     /// Depending on user configuration, we might use either external Rustfmt or
     /// the one we're shipping with.
     /// Locks config to read `rustfmt_path` key.
+    #[cfg(feature = "fmt")]
     fn formatter(&self) -> Rustfmt {
         let rustfmt = self
             .config
@@ -275,6 +279,7 @@ impl InitActionContext {
         Rustfmt::from(rustfmt)
     }
 
+    #[cfg(feature = "fmt")]
     fn fmt_config(&self) -> FmtConfig {
         FmtConfig::from(&self.current_project)
     }

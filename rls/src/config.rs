@@ -20,7 +20,9 @@ use serde_derive::{Deserialize, Serialize};
 
 use log::trace;
 
+#[cfg(feature = "fmt")]
 use rustfmt_nightly::Config as RustfmtConfig;
+#[cfg(feature = "fmt")]
 use rustfmt_nightly::{load_config, CliOptions, EmitMode, Verbosity};
 
 /// Some values in the config can be inferred without an explicit value set by
@@ -423,8 +425,10 @@ where
 /// Rustfmt generates from the user's TOML file, since when
 /// using Rustfmt with RLS, certain configuration options are
 /// always used. See `FmtConfig::set_rls_options`.
+#[cfg(feature = "fmt")]
 pub struct FmtConfig(RustfmtConfig);
 
+#[cfg(feature = "fmt")]
 impl FmtConfig {
     /// Look for `.rustmt.toml` or `rustfmt.toml` in `path`, falling back
     /// to the default config if neither exists.
@@ -462,6 +466,7 @@ impl FmtConfig {
     }
 }
 
+#[cfg(feature = "fmt")]
 impl Default for FmtConfig {
     fn default() -> FmtConfig {
         let config = RustfmtConfig::default();

@@ -47,7 +47,7 @@ racer = { version = "=2.2.1", default-features = false }
 rand = "0.8"
 rayon = "1"
 rustc_tools_util = "0.2"
-rustfmt-nightly = { git = "https://github.com/rust-lang/rustfmt", rev = "18c0369688d5854ea67dbe29cfac3cc8380cb20e" }
+rustfmt-nightly = { git = "https://github.com/rust-lang/rustfmt", rev = "18c0369688d5854ea67dbe29cfac3cc8380cb20e", optional = true }
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
@@ -80,5 +80,6 @@ rustc_tools_util = "0.2"
 
 [features]
 clippy = ["clippy_lints", "rls-rustc/clippy"]
+fmt = ["rustfmt-nightly"]
 ipc = ["rls-rustc/ipc", "rls-ipc/server"]
-default = ["ipc"]
+default = ["ipc", "fmt"]

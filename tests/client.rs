@@ -918,6 +918,7 @@ fn client_handle_utf16_unit_text_edits() {
 /// Ensures that wide characters do not prevent RLS from calculating correct
 /// 'whole file' LSP range.
 #[test]
+#[cfg(feature = "fmt")]
 fn client_format_utf16_range() {
     let p = project("client_format_utf16_range")
         .file(
@@ -1770,6 +1771,7 @@ fn client_rename() {
 }
 
 #[test]
+#[cfg(feature = "fmt")]
 fn client_reformat() {
     let p = ProjectBuilder::try_from_fixture(fixtures_dir().join("reformat")).unwrap().build();
     let root_path = p.root();
@@ -1803,6 +1805,7 @@ fn client_reformat() {
 }
 
 #[test]
+#[cfg(feature = "fmt")]
 fn client_reformat_with_range() {
     let p = ProjectBuilder::try_from_fixture(fixtures_dir().join("reformat_with_range"))
         .unwrap()

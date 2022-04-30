@@ -4,12 +4,15 @@ use log::*;
 use rls_analysis::{Def, DefKind};
 use rls_span::{Column, Range, Row, Span, ZeroIndexed};
 use rls_vfs::{self as vfs, Vfs};
+#[cfg(feature = "fmt")]
 use rustfmt_nightly::NewlineStyle;
 use serde_derive::{Deserialize, Serialize};
 
+#[cfg(feature = "fmt")]
 use crate::actions::format::Rustfmt;
 use crate::actions::requests;
 use crate::actions::InitActionContext;
+#[cfg(feature = "fmt")]
 use crate::config::FmtConfig;
 use crate::lsp_data::*;
 use crate::server::ResponseError;
@@ -313,8 +316,10 @@ fn tooltip_struct_enum_union_trait(
     debug!("tooltip_struct_enum_union_trait: {}", def.name);
 
     let vfs = &ctx.vfs;
+    #[cfg(feature = "fmt")]
     let fmt_config = ctx.fmt_config();
     // We hover often, so use the in-process one to speed things up.
+    #[cfg(feature = "fmt")]
     let fmt = Rustfmt::Internal;
 
     // Fallback in case source extration fails.
@@ -328,7 +333,12 @@ fn tooltip_struct_enum_union_trait(
 
     let decl = def_decl(def, &vfs, the_type);
 
+    #[cfg(feature = "fmt")]
     let the_type = format_object(fmt, &fmt_config, decl);
+
+    #[cfg(not(feature = "fmt"))]
+    let the_type = format_object(decl);
+
     let docs = def_docs(def, &vfs);
     let context = None;
 
@@ -368,8 +378,10 @@ fn tooltip_function_method(
     debug!("tooltip_function_method: {}", def.name);
 
     let vfs = &ctx.vfs;
+    #[cfg(feature = "fmt")]
     let fmt_config = ctx.fmt_config();
     // We hover often, so use the in-process one to speed things up.
+    #[cfg(feature = "fmt")]
     let fmt = Rustfmt::Internal;
 
     let the_type = || {
@@ -382,7 +394,12 @@ fn tooltip_function_method(
 
     let decl = def_decl(def, &vfs, the_type);
 
+    #[cfg(feature = "fmt")]
     let the_type = format_method(fmt, &fmt_config, decl);
+
+    #[cfg(not(feature = "fmt"))]
+    let the_type = format_method(decl);
+
     let docs = def_docs(def, &vfs);
     let context = None;
 
@@ -688,6 +705,7 @@ fn racer_def(ctx: &InitActionContext, span: &Span<ZeroIndexed>) -> Option<Def> {
 
 /// Formats a struct, enum, union, or trait. The original type is returned
 /// in the event of an error.
+#[cfg(feature = "fmt")]
 fn format_object(rustfmt: Rustfmt, fmt_config: &FmtConfig, the_type: String) -> String {
     debug!("format_object: {}", the_type);
     let mut config = fmt_config.get_rustfmt_config().clone();
@@ -695,16 +713,7 @@ fn format_object(rustfmt: Rustfmt, fmt_config: &FmtConfig, the_type: String) -> 
     let trimmed = the_type.trim();
 
     // Normalize the ending for rustfmt.
-    let object = if trimmed.ends_with(')') {
-        format!("{};", trimmed)
-    } else if trimmed.ends_with('}') || trimmed.ends_with(';') {
-        trimmed.to_string()
-    } else if trimmed.ends_with('{') {
-        let trimmed = trimmed.trim_end_matches('{').to_string();
-        format!("{}{{}}", trimmed)
-    } else {
-        format!("{}{{}}", trimmed)
-    };
+    let object = normalize_line_ending(trimmed);
 
     let formatted = match rustfmt.format(object.clone(), config) {
         Ok(lines) => match lines.rfind('{') {
@@ -718,7 +727,42 @@ fn format_object(rustfmt: Rustfmt, fmt_config: &FmtConfig, the_type: String) -> 
     };
 
     // If it's a tuple, remove the trailing ';' and hide non-pub components
-    // for pub types.
+    // for pub types
+    format_object_finalize(formatted)
+}
+
+/// Formats a struct, enum, union, or trait. The original type is returned
+/// in the event of an error.
+#[cfg(not(feature = "fmt"))]
+fn format_object(the_type: String) -> String {
+    debug!("format_object: {}", the_type);
+    let trimmed = the_type.trim();
+
+    // Normalize the ending for rustfmt.
+    let object = normalize_line_ending(trimmed);
+
+    // If it's a tuple, remove the trailing ';' and hide non-pub components
+    // for pub types
+    format_object_finalize(object)
+}
+
+fn normalize_line_ending(trimmed: &str) -> String {
+    let object = if trimmed.ends_with(')') {
+        format!("{};", trimmed)
+    } else if trimmed.ends_with('}') || trimmed.ends_with(';') {
+        trimmed.to_string()
+    } else if trimmed.ends_with('{') {
+        let trimmed = trimmed.trim_end_matches('{').to_string();
+        format!("{}{{}}", trimmed)
+    } else {
+        format!("{}{{}}", trimmed)
+    };
+    object
+}
+
+/// If it's a tuple, remove the trailing ';' and hide non-pub components
+/// for pub types.
+fn format_object_finalize(formatted: String) -> String {
     let result = if formatted.trim().ends_with(';') {
         let mut decl = formatted.trim().trim_end_matches(';');
         if let (Some(pos), true) = (decl.rfind('('), decl.ends_with(')')) {
@@ -749,12 +793,12 @@ fn format_object(rustfmt: Rustfmt, fmt_config: &FmtConfig, the_type: String) -> 
         // Not a tuple or unit struct.
         formatted
     };
-
     result.trim().into()
 }
 
 /// Formats a method or function. The original type is returned
 /// in the event of an error.
+#[cfg(feature = "fmt")]
 fn format_method(rustfmt: Rustfmt, fmt_config: &FmtConfig, the_type: String) -> String {
     trace!("format_method: {}", the_type);
     let the_type = the_type.trim().trim_end_matches(';').to_string();
@@ -794,6 +838,18 @@ fn format_method(rustfmt: Rustfmt, fmt_config: &FmtConfig, the_type: String) -> 
     };
 
     result.trim().into()
+}
+
+/// Formats a method or function. The original type is returned
+/// in the event of an error.
+#[cfg(not(feature = "fmt"))]
+fn format_method(the_type: String) -> String {
+    trace!("format_method: {}", the_type);
+    let the_type = the_type.trim().trim_end_matches(';').to_string();
+
+    let method = format!("impl Dummy {{ {} {{ unimplemented!() }} }}", the_type);
+
+    method.trim().into()
 }
 
 /// Builds a hover tooltip composed of the function signature or type declaration, doc URL
@@ -890,6 +946,7 @@ pub fn tooltip(
 #[allow(clippy::expect_fun_call)]
 pub mod test {
     use super::*;
+    #[cfg(feature = "fmt")]
     use crate::actions::format::Rustfmt;
 
     pub fn fixtures_dir() -> &'static Path {
@@ -1121,6 +1178,7 @@ pub mod test {
     }
 
     #[test]
+    #[cfg(feature = "fmt")]
     fn test_format_method() {
         let fmt = Rustfmt::Internal;
         let config = &FmtConfig::default();
@@ -1323,6 +1381,7 @@ pub mod test {
     }
 
     #[test]
+    #[cfg(feature = "fmt")]
     fn test_format_object() {
         let fmt = Rustfmt::Internal;
         let config = &FmtConfig::default();

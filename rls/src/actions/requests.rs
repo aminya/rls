@@ -11,6 +11,7 @@ use rls_analysis::SymbolQuery;
 use rls_data as data;
 use rls_span as span;
 use rls_vfs::FileContents;
+#[cfg(feature = "fmt")]
 use rustfmt_nightly::{Edition as RustfmtEdition, FileLines, FileName, Range as RustfmtRange};
 use serde_derive::{Deserialize, Serialize};
 use url::Url;
@@ -619,6 +620,7 @@ impl RequestAction for CodeAction {
     }
 }
 
+#[cfg(feature = "fmt")]
 impl RequestAction for Formatting {
     type Response = Vec<TextEdit>;
 
@@ -637,6 +639,7 @@ impl RequestAction for Formatting {
     }
 }
 
+#[cfg(feature = "fmt")]
 impl RequestAction for RangeFormatting {
     type Response = Vec<TextEdit>;
 
@@ -655,6 +658,7 @@ impl RequestAction for RangeFormatting {
     }
 }
 
+#[cfg(feature = "fmt")]
 fn reformat(
     doc: &TextDocumentIdentifier,
     selection: Option<Range>,
