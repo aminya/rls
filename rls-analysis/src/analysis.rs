@@ -11,7 +11,7 @@ use span::{Column, Row, ZeroIndexed};
 /// This is the main database that contains all the collected symbol information,
 /// such as definitions, their mapping between spans, hierarchy and so on,
 /// organized in a per-crate fashion.
-pub(crate) struct Analysis {
+pub struct Analysis {
     /// Contains lowered data with global inter-crate `Id`s per each crate.
     pub per_crate: HashMap<CrateId, PerCrateAnalysis>,
 
