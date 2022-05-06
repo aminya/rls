@@ -1,4 +1,4 @@
-#![cfg_attr(feature = "nightly", feature(step_trait, trusted_step))]
+#![cfg_attr(feature = "nightly", feature(step_trait, trusted_step, min_specialization))]
 
 use std::marker::PhantomData;
 use std::path::PathBuf;
@@ -92,7 +92,7 @@ macro_rules! impl_step {
                 Step::backward_checked(arg.0, count).map(|x| Self(x, PhantomData))
             }
         }
-        unsafe impl TrustedStep for $target {}
+        unsafe impl core::iter::TrustedStep for $target {}
     };
 }
 

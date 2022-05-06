@@ -84,7 +84,7 @@ fn lower_span(raw_span: &raw::SpanData, base_dir: &Path, path_rewrite: &Option<P
     };
 
     // Rustc uses 1-indexed rows and columns, the RLS uses 0-indexed.
-    span::Span::new(
+    rls_span::Span::new(
         raw_span.line_start.zero_indexed(),
         raw_span.line_end.zero_indexed(),
         raw_span.column_start.zero_indexed(),
@@ -491,7 +491,7 @@ impl<'a> CrateReader<'a> {
 
     /// Recreates resulting crate-local (`u32`, `u32`) id from compiler
     /// to a global `u64` `Id`, mapping from a local to global crate id.
-    fn id_from_compiler_id(&self, id: data::Id) -> Id {
+    fn id_from_compiler_id(&self, id: rls_data::Id) -> Id {
         if id.krate == u32::MAX || id.index == u32::MAX {
             return NULL;
         }

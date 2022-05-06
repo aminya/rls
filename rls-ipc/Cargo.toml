@@ -13,7 +13,7 @@ jsonrpc-core = "18"
 jsonrpc-core-client = "18"
 jsonrpc-derive = "18"
 jsonrpc-ipc-server = { version = "18", optional = true }
-rls-data = "0.19"
+rls-data = { version = "= 0.19", path = "../rls-data" }
 serde = { version = "1.0", features = ["derive"] }
 
 [features]

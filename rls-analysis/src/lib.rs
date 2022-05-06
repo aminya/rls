@@ -5,9 +5,6 @@ extern crate derive_new;
 #[macro_use]
 extern crate log;
 
-extern crate rls_data as data;
-extern crate rls_span as span;
-
 mod analysis;
 mod listings;
 mod loader;
@@ -69,7 +66,7 @@ impl SymbolResult {
     }
 }
 
-pub type Span = span::Span<span::ZeroIndexed>;
+pub type Span = rls_span::Span<rls_span::ZeroIndexed>;
 
 /// A common identifier for definitions, references etc. This is effectively a
 /// `DefId` with globally unique crate number (instead of a compiler generated
@@ -124,7 +121,7 @@ impl<L: AnalysisLoader> AnalysisHost<L> {
     /// passing in directly.
     pub fn reload_from_analysis(
         &self,
-        analysis: Vec<data::Analysis>,
+        analysis: Vec<rls_data::Analysis>,
         path_prefix: &Path,
         base_dir: &Path,
         blacklist: &[impl AsRef<str> + Debug],

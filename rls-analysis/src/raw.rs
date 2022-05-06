@@ -1,6 +1,6 @@
-use data::config::Config;
-use data::Analysis;
-pub use data::{
+use rls_data::config::Config;
+use rls_data::Analysis;
+pub use rls_data::{
     CratePreludeData, Def, DefKind, GlobalCrateId as CrateId, Import, Ref, Relation, RelationKind,
     SigElement, Signature, SpanData,
 };

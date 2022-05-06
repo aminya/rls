@@ -6,7 +6,7 @@ use std::time::SystemTime;
 
 use crate::raw::{CrateId, DefKind};
 use crate::{Id, Span, SymbolQuery};
-use span::{Column, Row, ZeroIndexed};
+use rls_span::{Column, Row, ZeroIndexed};
 
 /// This is the main database that contains all the collected symbol information,
 /// such as definitions, their mapping between spans, hierarchy and so on,
