@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
-use span::{self, Column, Position, Row};
+use rls_span as span;
+use span::{Column, Position, Row};
 
 use super::{
     make_line_indices, Change, Error, File, FileContents, FileKind, FileLoader, TextFile,

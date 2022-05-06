@@ -23,11 +23,11 @@ path = "rls/src/main.rs"
 [dependencies]
 # FIXME: Release rls-analysis 0.18.2 to crates.io
 rls-analysis = { version = "0.18.2", path = "rls-analysis" }
-rls-data = "0.19"
+rls-data = { version = "= 0.19", path = "./rls-data" }
 # FIXME: Release rls-rustc 0.6.0 to crates.io
 rls-rustc = { version = "0.6.0", path = "rls-rustc" }
-rls-span = "0.5"
-rls-vfs = "0.8"
+rls-span = { version = "0.5", path = "./rls-span" }
+rls-vfs = { version = "0.8", path = "./rls-vfs" }
 rls-ipc = { version = "0.1.0", path = "rls-ipc", optional = true }
 
 anyhow = "1.0.26"
@@ -83,3 +83,9 @@ rustc_tools_util = "0.2"
 clippy = ["clippy_lints", "rls-rustc/clippy"]
 ipc = ["rls-rustc/ipc", "rls-ipc/server"]
 default = ["ipc"]
+
+[patch.crates-io]
+rls-span = { path = "./rls-span" } # racer
+
+[package.metadata.rust-analyzer]
+rustc_private = true

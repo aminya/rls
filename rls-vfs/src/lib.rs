@@ -1,6 +1,6 @@
 #![warn(rust_2018_idioms)]
 
-extern crate rls_span as span;
+use rls_span as span;
 #[macro_use]
 extern crate log;
 
@@ -145,6 +145,8 @@ impl Error {
         }
     }
 }
+
+impl std::error::Error for Error {}
 
 impl Into<String> for Error {
     fn into(self) -> String {
@@ -913,7 +915,7 @@ impl FileLoader for RealFileLoader {
 
 #[cfg(test)]
 mod tests {
-    use span::Column;
+    use rls_span::Column;
 
     #[test]
     fn byte_in_str_utf16() {

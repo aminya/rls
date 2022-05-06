@@ -9,7 +9,7 @@ repository = "https://github.com/rust-lang/rls"
 categories = ["development-tools"]
 
 [dependencies]
-rls-span = "0.5.0"
+rls-span = { version = "0.5", path = "../rls-span" }
 serde = "1.0"
 
 [features]
