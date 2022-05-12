@@ -117,6 +117,8 @@ pub struct IdentBound {
     pub column_end: Column<ZeroIndexed>,
     pub id: Id,
     pub kind: IdentKind,
+    pub byte_start: u32,
+    pub byte_end: u32,
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -134,6 +136,8 @@ pub struct Ident {
     pub span: Span,
     pub id: Id,
     pub kind: IdentKind,
+    pub byte_start: u32,
+    pub byte_end: u32,
 }
 
 #[derive(Debug, Clone)]
@@ -218,6 +222,8 @@ impl PerCrateAnalysis {
                                             ),
                                             id.id,
                                             id.kind,
+                                            id.byte_start,
+                                            id.byte_end
                                         ))
                                     } else {
                                         None
