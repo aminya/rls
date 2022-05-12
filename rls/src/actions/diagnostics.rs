@@ -334,7 +334,7 @@ mod diagnostic_message_test {
 
     impl FileDiagnosticTestExt for ParsedDiagnostics {
         fn single_file_results(&self) -> &Vec<(Diagnostic, Vec<Suggestion>)> {
-            self.diagnostics.values().nth(0).unwrap()
+            self.diagnostics.values().next().unwrap()
         }
 
         fn to_messages(&self) -> Vec<(String, Vec<String>)> {
@@ -376,7 +376,7 @@ mod diagnostic_message_test {
         let diag =
             parse_compiler_message(&read_fixture("compiler_message/use-after-move.json"), true);
 
-        let diagnostic = &diag.diagnostics.values().nth(0).unwrap()[0];
+        let diagnostic = &diag.diagnostics.values().next().unwrap()[0];
 
         assert_eq!(diagnostic.0.source, Some("rustc".into()));
 
@@ -574,7 +574,7 @@ help: consider borrowing here: `&string`"#,
         let diag =
             parse_compiler_message(&read_fixture("compiler_message/clippy-identity-op.json"), true);
 
-        let diagnostic = &diag.diagnostics.values().nth(0).unwrap()[0];
+        let diagnostic = &diag.diagnostics.values().next().unwrap()[0];
 
         assert_eq!(diagnostic.0.source, Some("clippy".into()));
 
@@ -609,10 +609,10 @@ help: consider borrowing here: `&string`"#,
         );
         assert_eq!(diag.diagnostics.len(), 1, "{:#?}", diag.diagnostics);
 
-        let file = &diag.diagnostics.keys().nth(0).unwrap();
+        let file = &diag.diagnostics.keys().next().unwrap();
         assert!(file.to_str().unwrap().ends_with("src/main.rs"), "Unexpected file {:?}", file);
 
-        let diagnostic = &diag.diagnostics.values().nth(0).unwrap()[0];
+        let diagnostic = &diag.diagnostics.values().next().unwrap()[0];
         assert_eq!(diagnostic.0.source, Some("rustc".into()));
         assert_eq!(
             diagnostic.0.range,
@@ -645,10 +645,10 @@ help: consider borrowing here: `&string`"#,
         );
         assert_eq!(diag.diagnostics.len(), 1, "{:#?}", diag.diagnostics);
 
-        let file = &diag.diagnostics.keys().nth(0).unwrap();
+        let file = &diag.diagnostics.keys().next().unwrap();
         assert!(file.to_str().unwrap().ends_with("src/main.rs"), "Unexpected file {:?}", file);
 
-        let diagnostic = &diag.diagnostics.values().nth(0).unwrap()[0];
+        let diagnostic = &diag.diagnostics.values().next().unwrap()[0];
         assert_eq!(diagnostic.0.source, Some("rustc".into()));
         assert_eq!(
             diagnostic.0.range,
@@ -674,7 +674,7 @@ mod diagnostic_suggestion_test {
         let diag =
             parse_compiler_message(&read_fixture("compiler_message/cannot-find-type.json"), true);
 
-        let diagnostics = diag.diagnostics.values().nth(0).unwrap();
+        let diagnostics = diag.diagnostics.values().next().unwrap();
 
         eprintln!("{:#?}", diagnostics);
 
@@ -696,7 +696,7 @@ mod diagnostic_suggestion_test {
     fn suggest_mut_when_not_mut() {
         let diag = parse_compiler_message(&read_fixture("compiler_message/not-mut.json"), true);
 
-        let diagnostics = diag.diagnostics.values().nth(0).unwrap();
+        let diagnostics = diag.diagnostics.values().next().unwrap();
 
         eprintln!("{:#?}", diagnostics);
 
@@ -724,7 +724,7 @@ mod diagnostic_suggestion_test {
             true,
         );
 
-        let diagnostics = diag.diagnostics.values().nth(0).unwrap();
+        let diagnostics = diag.diagnostics.values().next().unwrap();
 
         eprintln!("{:#?}", diagnostics);
 
@@ -748,7 +748,7 @@ mod diagnostic_suggestion_test {
             &read_fixture("compiler_message/macro-error-no-trait.json"),
             true,
         );
-        let diagnostics = diag.diagnostics.values().nth(0).unwrap();
+        let diagnostics = diag.diagnostics.values().next().unwrap();
 
         eprintln!("{:#?}", diagnostics);
 

@@ -73,16 +73,16 @@ pub(crate) fn rustc(
         "RLS_OUT_OF_PROCESS",
     ) {
         #[cfg(feature = "ipc")]
-        Ok(..) => run_out_of_process(changed.clone(), &args, &envs, clippy_preference)
+        Ok(..) => run_out_of_process(changed.clone(), args, &envs, clippy_preference)
             .unwrap_or_else(|_| {
-                run_in_process(changed, &args, clippy_preference, lock_environment(&envs, cwd))
+                run_in_process(changed, args, clippy_preference, lock_environment(&envs, cwd))
             }),
         #[cfg(not(feature = "ipc"))]
         Ok(..) => {
             log::warn!("Support for out-of-process compilation was not compiled. Rebuild with 'ipc' feature enabled");
             run_in_process(changed, &args, clippy_preference, lock_environment(&envs, cwd))
         }
-        Err(..) => run_in_process(changed, &args, clippy_preference, lock_environment(&envs, cwd)),
+        Err(..) => run_in_process(changed, args, clippy_preference, lock_environment(&envs, cwd)),
     };
 
     let stderr = String::from_utf8(stderr).unwrap();
@@ -294,7 +294,7 @@ impl rustc_driver::Callbacks for RlsRustcCalls {
             save::process_crate(
                 tcx,
                 &crate_name,
-                &input,
+                input,
                 None,
                 CallbackHandler {
                     callback: &mut |a| {

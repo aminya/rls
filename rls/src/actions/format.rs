@@ -278,7 +278,7 @@ mod tests {
             config
         };
         let args = rustfmt_args(&config_with_lines, Path::new("dummy"));
-        assert!(args.join(" ").find("--file-lines").is_some());
+        assert!(args.join(" ").contains("--file-lines"));
 
         let args = rustfmt_args(&Config::default(), Path::new("dummy"));
         assert_eq!(args.join(" ").find("--file-lines"), None);

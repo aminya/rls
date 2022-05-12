@@ -197,7 +197,7 @@ fn run_cargo_ws(
     let spec = Packages::from_flags(all, Vec::new(), packages)?;
 
     let pkg_names = spec
-        .to_package_id_specs(&ws)?
+        .to_package_id_specs(ws)?
         .iter()
         .map(|pkg_spec| pkg_spec.name().as_str().to_owned())
         .collect();
@@ -225,7 +225,7 @@ fn run_cargo_ws(
             opts.all_targets,
         ),
         build_config: BuildConfig::new(
-            &config,
+            config,
             opts.jobs,
             false, // --keep-going
             opts.target.iter().map(|x| x.into()).collect::<Vec<String>>().as_slice(),
@@ -236,7 +236,7 @@ fn run_cargo_ws(
             opts.all_features,
             !opts.no_default_features,
         )?,
-        ..CompileOptions::new(&config, CompileMode::Check { test: cfg_test })?
+        ..CompileOptions::new(config, CompileMode::Check { test: cfg_test })?
     };
 
     // Create a custom environment for running cargo, the environment is reset
@@ -250,7 +250,7 @@ fn run_cargo_ws(
     let reached_primary = Arc::new(AtomicBool::new(false));
 
     let exec = RlsExecutor::new(
-        &ws,
+        ws,
         Arc::clone(&compilation_cx),
         rls_config,
         inner_lock,
@@ -274,7 +274,7 @@ fn run_cargo_ws(
         config.target_dir().unwrap().unwrap().as_path_unlocked().parent().unwrap(),
     )?;
     let exec = Arc::new(exec) as Arc<dyn Executor>;
-    match compile_with_exec(&ws, &compile_opts, &exec) {
+    match compile_with_exec(ws, &compile_opts, &exec) {
         Ok(_) => {
             trace!(
                 "created build plan after Cargo compilation routine: {:?}",
@@ -899,7 +899,7 @@ mod test {
     #[test]
     fn test_dedup_flags() {
         // These should all be preserved.
-        assert!(dedup_flags("") == "");
+        assert!(dedup_flags("").is_empty());
         assert!(dedup_flags("-Zfoo") == " -Zfoo");
         assert!(dedup_flags("-Z foo") == " -Zfoo");
         assert!(dedup_flags("-Zfoo bar") == " -Zfoo bar");

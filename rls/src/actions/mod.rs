@@ -37,7 +37,6 @@ macro_rules! ignore_non_file_uri {
     ($expr: expr, $uri: expr, $log_name: expr) => {
         $expr.map_err(|_| {
             trace!("{}: Non-`file` URI scheme, ignoring: {:?}", $log_name, $uri);
-            ()
         })
     };
 }
