@@ -5,7 +5,7 @@ extern crate derive_new;
 #[macro_use]
 extern crate log;
 
-mod analysis;
+pub mod analysis;
 mod listings;
 mod loader;
 mod lowering;
