@@ -51,7 +51,7 @@ impl ProjectModel {
         config.nightly_features_allowed = true;
         // frozen = false, locked = false, offline = false
         config.configure(0, true, None, false, false, false, &None, &[], &[])?;
-        let ws = Workspace::new(&ws_manifest, &config)?;
+        let ws = Workspace::new(ws_manifest, &config)?;
         // get resolve from lock file
         let prev = {
             let lock_path = ws.root().to_owned().join("Cargo.lock");
@@ -107,7 +107,7 @@ impl ProjectModel {
                 let lib = pkg.targets().iter().find(|t| t.is_lib());
                 if let Some(lib) = lib {
                     let (crate_name, _) =
-                        resolve.extern_crate_name_and_dep_name(pkg_id, dep_id, &lib)?;
+                        resolve.extern_crate_name_and_dep_name(pkg_id, dep_id, lib)?;
                     packages[pkg_id_to_pkg[&pkg_id].0]
                         .deps
                         .push(Dep { crate_name, pkg: pkg_id_to_pkg[&dep_id] })

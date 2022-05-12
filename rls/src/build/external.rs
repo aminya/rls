@@ -213,7 +213,7 @@ impl Invocation {
         let mut command = ProcessBuilder::new(&raw.program);
         command.args(&raw.args);
         for (k, v) in &raw.env {
-            command.env(&k, v);
+            command.env(k, v);
         }
         if let Some(cwd) = &raw.cwd {
             command.cwd(cwd);
@@ -326,7 +326,7 @@ impl BuildGraph for ExternalPlan {
                 .filter_map(|(unit, src)| src.map(|src| (unit, src)))
                 // Discard units that are in a different directory subtree.
                 .filter_map(|(unit, src)| {
-                    let matching = matching_prefix_components(modified, &src);
+                    let matching = matching_prefix_components(modified, src);
                     if matching >= src.components().count() {
                         Some((unit, matching))
                     } else {
@@ -415,7 +415,7 @@ fn guess_rustc_src_path(build_dir: &Path, cmd: &ProcessBuilder) -> Option<PathBu
         return None;
     }
 
-    let cwd = cmd.get_cwd().or_else(|| Some(build_dir));
+    let cwd = cmd.get_cwd().or(Some(build_dir));
 
     let file =
         cmd.get_args().find(|&a| Path::new(a).extension().map(|e| e == "rs").unwrap_or(false))?;
@@ -432,7 +432,7 @@ mod tests {
     }
 
     impl<T: Ord> Sorted for Vec<T> {
-        fn sorted(mut self: Self) -> Self {
+        fn sorted(mut self) -> Self {
             self.sort();
             self
         }
@@ -462,7 +462,7 @@ mod tests {
             { "deps": [0], "program": "rustc", "args": ["--crate-name", "repo", "/my/repo/src/lib.rs"], "env": {}, "outputs": [] }
         ]}"#;
         let build_dir = std::env::temp_dir();
-        let plan = serde_json::from_str::<RawPlan>(&plan).unwrap();
+        let plan = serde_json::from_str::<RawPlan>(plan).unwrap();
         let plan = ExternalPlan::try_from_raw(&build_dir, plan).unwrap();
 
         eprintln!("src_paths: {:#?}", &SrcPaths::from(&plan));
@@ -490,7 +490,7 @@ mod tests {
             { "deps": [0], "program": "rustc", "args": ["--crate-name", "repo", "/my/repo/src/lib.rs"], "env": {}, "outputs": [] }
         ]}"#;
         let build_dir = std::env::temp_dir();
-        let plan = serde_json::from_str::<RawPlan>(&plan).unwrap();
+        let plan = serde_json::from_str::<RawPlan>(plan).unwrap();
         let plan = ExternalPlan::try_from_raw(&build_dir, plan).unwrap();
 
         eprintln!("src_paths: {:#?}", &SrcPaths::from(&plan));
@@ -520,7 +520,7 @@ mod tests {
             { "deps": [0], "program": "rustc", "args": ["--crate-name", "repo", "/my/repo/src/lib.rs"], "env": {}, "outputs": [] }
         ]}"#;
         let build_dir = std::env::temp_dir();
-        let plan = serde_json::from_str::<RawPlan>(&plan).unwrap();
+        let plan = serde_json::from_str::<RawPlan>(plan).unwrap();
         let plan = ExternalPlan::try_from_raw(&build_dir, plan).unwrap();
 
         eprintln!("src_paths: {:#?}", &SrcPaths::from(&plan));

@@ -175,7 +175,7 @@ impl JobQueue {
                 &internals.vfs,
                 &args,
                 job.get_envs(),
-                job.get_cwd().or_else(|| cwd.as_deref()),
+                job.get_cwd().or(cwd.as_deref()),
                 &build_dir,
                 Arc::clone(&internals.config),
                 &internals.env_lock.as_facade(),

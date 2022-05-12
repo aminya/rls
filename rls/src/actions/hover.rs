@@ -202,7 +202,7 @@ pub fn extract_docs(
 }
 
 fn extract_and_process_docs(vfs: &Vfs, file: &Path, row_start: Row<ZeroIndexed>) -> Option<String> {
-    extract_docs(vfs, &file, row_start)
+    extract_docs(vfs, file, row_start)
         .map_err(|e| {
             error!("failed to extract docs: row: {:?}, file: {:?} ({:?})", row_start, file, e);
         })
@@ -226,12 +226,12 @@ pub fn extract_decl(
                 row = Row::new_zero_indexed(row.0.saturating_add(1));
                 let mut line = line.trim();
                 if let Some(pos) = line.rfind('{') {
-                    line = &line[0..pos].trim_end();
+                    line = line[0..pos].trim_end();
                     lines.push(line.into());
                     break;
                 } else if line.ends_with(';') {
                     let pos = line.len() - 1;
-                    line = &line[0..pos].trim_end();
+                    line = line[0..pos].trim_end();
                     lines.push(line.into());
                     break;
                 } else {
@@ -282,8 +282,8 @@ fn tooltip_type(ctx: &InitActionContext, def: &Def, doc_url: Option<String>) -> 
     let vfs = &ctx.vfs;
 
     let the_type = || def.value.trim().into();
-    let the_type = def_decl(def, &vfs, the_type);
-    let docs = def_docs(def, &vfs);
+    let the_type = def_decl(def, vfs, the_type);
+    let docs = def_docs(def, vfs);
     let context = None;
 
     create_tooltip(the_type, doc_url, context, docs)
@@ -299,7 +299,7 @@ fn tooltip_field_or_variant(
     let vfs = &ctx.vfs;
 
     let the_type = def.value.trim().into();
-    let docs = def_docs(def, &vfs);
+    let docs = def_docs(def, vfs);
     let context = None;
 
     create_tooltip(the_type, doc_url, context, docs)
@@ -326,10 +326,10 @@ fn tooltip_struct_enum_union_trait(
         _ => def.value.trim().to_string(),
     };
 
-    let decl = def_decl(def, &vfs, the_type);
+    let decl = def_decl(def, vfs, the_type);
 
     let the_type = format_object(fmt, &fmt_config, decl);
-    let docs = def_docs(def, &vfs);
+    let docs = def_docs(def, vfs);
     let context = None;
 
     create_tooltip(the_type, doc_url, context, docs)
@@ -342,7 +342,7 @@ fn tooltip_mod(ctx: &InitActionContext, def: &Def, doc_url: Option<String>) -> V
 
     let the_type = def.value.trim();
     let the_type = the_type.replace("\\\\", "/");
-    let the_type = the_type.replace("\\", "/");
+    let the_type = the_type.replace('\\', "/");
 
     let mod_path = if let Some(dir) = ctx.current_project.file_name() {
         if Path::new(&the_type).starts_with(dir) {
@@ -354,7 +354,7 @@ fn tooltip_mod(ctx: &InitActionContext, def: &Def, doc_url: Option<String>) -> V
         the_type
     };
 
-    let docs = def_docs(def, &vfs);
+    let docs = def_docs(def, vfs);
     let context = None;
 
     create_tooltip(mod_path, doc_url, context, docs)
@@ -380,10 +380,10 @@ fn tooltip_function_method(
             .replace("->(", "-> (")
     };
 
-    let decl = def_decl(def, &vfs, the_type);
+    let decl = def_decl(def, vfs, the_type);
 
     let the_type = format_method(fmt, &fmt_config, decl);
-    let docs = def_docs(def, &vfs);
+    let docs = def_docs(def, vfs);
     let context = None;
 
     create_tooltip(the_type, doc_url, context, docs)
@@ -440,8 +440,8 @@ fn tooltip_static_const_decl(
 
     let vfs = &ctx.vfs;
 
-    let the_type = def_decl(def, &vfs, || def.value.trim().into());
-    let docs = def_docs(def, &vfs);
+    let the_type = def_decl(def, vfs, || def.value.trim().into());
+    let docs = def_docs(def, vfs);
     let context = None;
 
     create_tooltip(the_type, doc_url, context, docs)
@@ -458,7 +458,7 @@ fn empty_to_none(s: String) -> Option<String> {
 /// Extracts and processes source documentation for the give `def`.
 fn def_docs(def: &Def, vfs: &Vfs) -> Option<String> {
     let save_analysis_docs = || empty_to_none(def.docs.trim().into());
-    extract_and_process_docs(&vfs, def.span.file.as_ref(), def.span.range.row_start)
+    extract_and_process_docs(vfs, def.span.file.as_ref(), def.span.range.row_start)
         .or_else(save_analysis_docs)
         .filter(|docs| !docs.trim().is_empty())
 }
@@ -823,7 +823,7 @@ pub fn tooltip(
         debug!("tooltip: racer_fallback_enabled: {}", racer_fallback_enabled);
         if racer_fallback_enabled {
             debug!("tooltip: span_def is empty, attempting with racer");
-            racer_def(&ctx, &hover_span).ok_or_else(|| {
+            racer_def(ctx, &hover_span).ok_or_else(|| {
                 debug!("tooltip: racer returned an empty result");
                 e
             })
@@ -836,33 +836,33 @@ pub fn tooltip(
 
     let contents = if let Ok(def) = hover_span_def {
         if def.kind == DefKind::Local && def.span == hover_span && def.qualname.contains('$') {
-            tooltip_local_variable_decl(&ctx, &def, doc_url)
+            tooltip_local_variable_decl(ctx, &def, doc_url)
         } else if def.kind == DefKind::Local
             && def.span != hover_span
             && !def.qualname.contains('$')
         {
-            tooltip_function_arg_usage(&ctx, &def, doc_url)
+            tooltip_function_arg_usage(ctx, &def, doc_url)
         } else if def.kind == DefKind::Local && def.span != hover_span && def.qualname.contains('$')
         {
-            tooltip_local_variable_usage(&ctx, &def, doc_url)
+            tooltip_local_variable_usage(ctx, &def, doc_url)
         } else if def.kind == DefKind::Local && def.span == hover_span {
-            tooltip_function_signature_arg(&ctx, &def, doc_url)
+            tooltip_function_signature_arg(ctx, &def, doc_url)
         } else {
             match def.kind {
                 DefKind::TupleVariant | DefKind::StructVariant | DefKind::Field => {
-                    tooltip_field_or_variant(&ctx, &def, doc_url)
+                    tooltip_field_or_variant(ctx, &def, doc_url)
                 }
                 DefKind::Enum | DefKind::Union | DefKind::Struct | DefKind::Trait => {
-                    tooltip_struct_enum_union_trait(&ctx, &def, doc_url)
+                    tooltip_struct_enum_union_trait(ctx, &def, doc_url)
                 }
                 DefKind::Function | DefKind::Method | DefKind::ForeignFunction => {
-                    tooltip_function_method(&ctx, &def, doc_url)
+                    tooltip_function_method(ctx, &def, doc_url)
                 }
-                DefKind::Mod => tooltip_mod(&ctx, &def, doc_url),
+                DefKind::Mod => tooltip_mod(ctx, &def, doc_url),
                 DefKind::Static | DefKind::ForeignStatic | DefKind::Const => {
-                    tooltip_static_const_decl(&ctx, &def, doc_url)
+                    tooltip_static_const_decl(ctx, &def, doc_url)
                 }
-                DefKind::Type => tooltip_type(&ctx, &def, doc_url),
+                DefKind::Type => tooltip_type(ctx, &def, doc_url),
                 _ => {
                     debug!(
                         "tooltip: ignoring def: \

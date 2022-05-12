@@ -37,7 +37,7 @@ impl BlockingNotificationAction for Initialized {
             registrations: vec![Registration {
                 id: WATCH_ID.to_owned(),
                 method: <DidChangeWatchedFiles as LSPNotification>::METHOD.to_owned(),
-                register_options: Some(FileWatch::new(&ctx).watchers_config()),
+                register_options: Some(FileWatch::new(ctx).watchers_config()),
             }],
         };
 
@@ -236,7 +236,7 @@ impl BlockingNotificationAction for DidSaveTextDocument {
 
         ctx.vfs.file_saved(&file_path).unwrap();
 
-        if !ctx.client_use_change_watched && FileWatch::new(&ctx).is_relevant_save_doc(&params) {
+        if !ctx.client_use_change_watched && FileWatch::new(ctx).is_relevant_save_doc(&params) {
             // support manifest change rebuilding for client's that don't send
             // workspace/didChangeWatchedFiles notifications
             ctx.build_current_project(BuildPriority::Cargo, &out);
@@ -258,7 +258,7 @@ impl BlockingNotificationAction for DidChangeWatchedFiles {
         trace!("on_cargo_change: thread: {:?}", thread::current().id());
 
         ctx.client_use_change_watched = true;
-        let file_watch = FileWatch::new(&ctx);
+        let file_watch = FileWatch::new(ctx);
 
         if params.changes.iter().any(|c| file_watch.is_relevant(c)) {
             ctx.build_current_project(BuildPriority::Cargo, &out);

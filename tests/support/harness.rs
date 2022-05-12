@@ -230,7 +230,7 @@ fn try_expect_message(
         None => return Err("No message found!".into()),
     };
 
-    let values: serde_json::Value = serde_json::from_str(&found).unwrap();
+    let values: serde_json::Value = serde_json::from_str(found).unwrap();
     if values.get("jsonrpc").expect("Missing jsonrpc field").as_str().unwrap() != "2.0" {
         return Err("Bad jsonrpc field".into());
     }
@@ -242,7 +242,7 @@ fn try_expect_message(
     }
 
     for c in &expected.contains {
-        if found.find(c).is_none() {
+        if !found.contains(c) {
             return Err(format!("Could not find `{}` in `{}`", c, found));
         }
     }

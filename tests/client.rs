@@ -461,7 +461,7 @@ fn client_test_complete_self_crate_name() {
         _ => Vec::new(),
     };
 
-    let item = items.into_iter().nth(0).expect("Racer autocompletion failed");
+    let item = items.into_iter().next().expect("Racer autocompletion failed");
     assert_eq!(item.detail.unwrap(), "pub fn function() -> usize");
 }
 
@@ -561,7 +561,7 @@ fn client_completion_suggests_arguments_in_statements() {
         _ => Vec::new(),
     };
 
-    let item = items.into_iter().nth(0).expect("Racer autocompletion failed");
+    let item = items.into_iter().next().expect("Racer autocompletion failed");
     assert_eq!(item.insert_text.unwrap(), "function()");
 }
 
@@ -629,7 +629,7 @@ fn client_use_statement_completion_doesnt_suggest_arguments() {
         _ => Vec::new(),
     };
 
-    let item = items.into_iter().nth(0).expect("Racer autocompletion failed");
+    let item = items.into_iter().next().expect("Racer autocompletion failed");
     assert_eq!(item.insert_text.unwrap(), "function");
 }
 
@@ -1186,7 +1186,7 @@ fn client_deglob() {
     // Right now we only support deglobbing via commands. Please update this
     // test if we move to making text edits via CodeAction (which we should for
     // deglobbing);
-    let Command { title, command, arguments, .. } = match commands.into_iter().nth(0).unwrap() {
+    let Command { title, command, arguments, .. } = match commands.into_iter().next().unwrap() {
         CodeActionOrCommand::Command(commands) => commands,
         CodeActionOrCommand::CodeAction(_) => unimplemented!(),
     };
@@ -1217,7 +1217,7 @@ fn client_deglob() {
     let params = <ApplyWorkspaceEdit as Request>::Params::deserialize(&result["params"])
         .expect("Couldn't deserialize params");
 
-    let (url, edits) = params.edit.changes.unwrap().drain().nth(0).unwrap();
+    let (url, edits) = params.edit.changes.unwrap().drain().next().unwrap();
     assert_eq!(url, Url::from_file_path(p.root().join("src/main.rs")).unwrap());
     assert_eq!(
         edits,
@@ -1244,7 +1244,7 @@ fn client_deglob() {
     // Right now we only support deglobbing via commands. Please update this
     // test if we move to making text edits via CodeAction (which we should for
     // deglobbing);
-    let Command { title, command, arguments, .. } = match commands.into_iter().nth(0).unwrap() {
+    let Command { title, command, arguments, .. } = match commands.into_iter().next().unwrap() {
         CodeActionOrCommand::Command(commands) => commands,
         CodeActionOrCommand::CodeAction(_) => unimplemented!(),
     };
@@ -1280,7 +1280,7 @@ fn client_deglob() {
     let params = <ApplyWorkspaceEdit as Request>::Params::deserialize(&result["params"])
         .expect("Couldn't deserialize params");
 
-    let (url, edits) = params.edit.changes.unwrap().drain().nth(0).unwrap();
+    let (url, edits) = params.edit.changes.unwrap().drain().next().unwrap();
     assert_eq!(url, Url::from_file_path(p.root().join("src/main.rs")).unwrap());
     assert_eq!(
         edits,
@@ -1855,8 +1855,8 @@ fn client_reformat_with_range() {
     let world1 = "world";
     println!("Hello, {}!", world1);
 "#
-    .replace("\r", "")
-    .replace("\n", newline);
+    .replace('\r', "")
+    .replace('\n', newline);
 
     let edits = result.unwrap();
     assert_eq!(edits.len(), 2);

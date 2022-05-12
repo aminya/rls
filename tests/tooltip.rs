@@ -88,7 +88,7 @@ impl Test {
         let doc_id = TextDocumentIdentifier::new(url);
         let position = Position::new(self.line - 1u64, self.col - 1u64);
         let params = TextDocumentPositionParams::new(doc_id, position);
-        let result = tooltip(&ctx, &params)
+        let result = tooltip(ctx, &params)
             .map_err(|e| format!("tooltip error: {:?}", e))
             .map(|v| v.contents);
 
@@ -243,20 +243,21 @@ impl TooltipTestHarness {
 
         let failures: Vec<TestFailure> = results
             .into_iter()
-            .map(|actual_result: TestResult| match actual_result.test.load_result(&load_dir) {
-                Ok(expect_result) => {
-                    if actual_result.test != expect_result.test {
-                        let e = format!("Mismatched test: {:?}", expect_result.test);
-                        Some((Err(e), actual_result))
-                    } else if expect_result.has_same_data_start(&actual_result) {
-                        None
-                    } else {
-                        Some((Ok(expect_result), actual_result))
+            .filter_map(|actual_result: TestResult| {
+                match actual_result.test.load_result(&load_dir) {
+                    Ok(expect_result) => {
+                        if actual_result.test != expect_result.test {
+                            let e = format!("Mismatched test: {:?}", expect_result.test);
+                            Some((Err(e), actual_result))
+                        } else if expect_result.has_same_data_start(&actual_result) {
+                            None
+                        } else {
+                            Some((Ok(expect_result), actual_result))
+                        }
                     }
+                    Err(e) => Some((Err(e), actual_result)),
                 }
-                Err(e) => Some((Err(e), actual_result)),
             })
-            .filter_map(|failed_result| failed_result)
             .map(|(result, actual_result)| {
                 let load_file = actual_result.test.path(&load_dir);
                 let save_file = actual_result.test.path(&save_dir);
