@@ -213,10 +213,10 @@ impl<'a> CrateReader<'a> {
             } else if let Some(ref ref_id) = i.ref_id {
                 // Import where we know the referred def.
                 let def_id = self.id_from_compiler_id(*ref_id);
-                self.record_ref(def_id, span, analysis, project_analysis);
-                if let Some(alias_span) = i.alias_span {
-                    let alias_span = lower_span(&alias_span, &self.base_dir, &self.path_rewrite);
-                    self.record_ref(def_id, alias_span, analysis, project_analysis);
+                self.record_ref(def_id, span, &i.span, analysis, project_analysis);
+                if let Some(alias_span_data) = i.alias_span {
+                    let alias_span = lower_span(&alias_span_data, &self.base_dir, &self.path_rewrite);
+                    self.record_ref(def_id, alias_span, &alias_span_data, analysis, project_analysis);
                     let mut analysis = project_analysis.analysis.lock().unwrap();
                     analysis.as_mut().unwrap().aliased_imports.insert(def_id);
                 }
@@ -228,6 +228,7 @@ impl<'a> CrateReader<'a> {
         &self,
         def_id: Id,
         span: Span,
+        span_data: &rls_data::SpanData,
         analysis: &mut PerCrateAnalysis,
         project_analysis: &AnalysisHost<L>,
     ) {
@@ -247,14 +248,14 @@ impl<'a> CrateReader<'a> {
 
             #[cfg(feature = "idents")]
             {
-                Self::record_ident(analysis, &span, def_id, IdentKind::Ref);
+                Self::record_ident(analysis, &span, span_data, def_id, IdentKind::Ref);
             }
             analysis.ref_spans.entry(def_id).or_insert_with(Vec::new).push(span);
         }
     }
 
     #[cfg(feature = "idents")]
-    fn record_ident(analysis: &mut PerCrateAnalysis, span: &Span, id: Id, kind: IdentKind) {
+    fn record_ident(analysis: &mut PerCrateAnalysis, span: &Span,         span_data: &rls_data::SpanData, id: Id, kind: IdentKind) {
         let row_start = span.range.row_start;
         let col_start = span.range.col_start;
         let col_end = span.range.col_end;
@@ -265,7 +266,7 @@ impl<'a> CrateReader<'a> {
             .entry(row_start)
             .or_insert_with(IdentsByColumn::new)
             .entry(col_start)
-            .or_insert_with(|| IdentBound::new(col_end, id, kind));
+            .or_insert_with(|| IdentBound::new(col_end, id, kind, span_data.byte_start, span_data.byte_end));
     }
 
     // We are sometimes asked to analyze the same crate twice. This can happen due to duplicate data,
@@ -379,7 +380,7 @@ impl<'a> CrateReader<'a> {
 
                 #[cfg(feature = "idents")]
                 {
-                    Self::record_ident(analysis, &span, id, IdentKind::Def);
+                    Self::record_ident(analysis, &span, &d.span, id, IdentKind::Def);
                 }
 
                 let def = Def {
@@ -437,7 +438,7 @@ impl<'a> CrateReader<'a> {
             }
             let def_id = self.id_from_compiler_id(r.ref_id);
             let span = lower_span(&r.span, &self.base_dir, &self.path_rewrite);
-            self.record_ref(def_id, span, analysis, project_analysis);
+            self.record_ref(def_id, span, &r.span, analysis, project_analysis);
         }
     }
 
