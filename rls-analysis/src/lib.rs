@@ -72,7 +72,7 @@ pub type Span = rls_span::Span<rls_span::ZeroIndexed>;
 /// `DefId` with globally unique crate number (instead of a compiler generated
 /// crate-local number).
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, new)]
-pub struct Id(u64);
+pub struct Id(pub u64);
 
 impl Id {
     fn from_crate_and_local(crate_id: u32, local_id: u32) -> Id {
