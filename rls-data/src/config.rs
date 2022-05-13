@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Used to configure save-analysis.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "derive", derive(Serialize, Deserialize))]
 pub struct Config {
     /// File to output save-analysis data to.
@@ -21,4 +21,18 @@ pub struct Config {
     pub signatures: bool,
     /// Include experimental borrow data.
     pub borrow_data: bool,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            output_file: None,
+            full_docs: true,
+            pub_only: false,
+            reachable_only: false,
+            distro_crate: false,
+            signatures: true,
+            borrow_data: true,
+        }
+    }
 }
