@@ -85,7 +85,7 @@ ipc = ["rls-rustc/ipc", "rls-ipc/server"]
 default = ["ipc"]
 
 [patch.crates-io]
-rls-span = { path = "./rls-span" } # racer
+rls-span = { version = "0.5", path = "./rls-span" } # racer
 
 [package.metadata.rust-analyzer]
 rustc_private = true

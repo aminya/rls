@@ -19,7 +19,7 @@ env_logger = "0.7.1"
 lazy_static = "1.2"
 humantime = "2.0.0"
 derive_more = "0.99.2"
-rls-span = "0.5.1"
+rls-span = { version = "0.5", path = "../rls-span" }
 lazycell = "1.2"
 
 [dependencies.racer-cargo-metadata]
